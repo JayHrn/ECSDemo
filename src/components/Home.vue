@@ -21,7 +21,7 @@ export default {
 </script>
 
 <style >
-@import "../assets/css/index.css";
-@import "../assets/css/base.css";
-@import "../assets/css/order.css";
+@import "@/assets/css/index.css";
+@import "@/assets/css/base.css";
+@import "@/assets/css/order.css";
 </style>
