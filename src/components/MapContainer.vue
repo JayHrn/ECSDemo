@@ -53,7 +53,7 @@
             <span>驾车策略: </span>
           </div>
           <div class="input-line-clear">
-            <el-select v-model="drivePolicy" clearable placeholder="请选择驾车策略">
+            <el-select v-model="drivePolicy" clearable placeholder="默认最快捷模式">
               <el-option
                   v-for="item in drivePolicyOptions"
                   :key="item.value"
@@ -66,7 +66,7 @@
 
         <div class="input-line-button">
           <el-button size="medium" @click="wayPointsDialogVisible=true" type="primary">添加途径点</el-button>
-          <el-button size="medium" @click="driver" type="primary">查找</el-button>
+          <el-button size="medium" plain @click="driver" type="primary">查找</el-button>
         </div>
 
       </div>
@@ -75,57 +75,51 @@
     <div class="map">
       <div id="MapContainer">
       </div>
-      <div id="panel" v-show="panelShow">
-        <div class="fee">路费：{{ this.dollar }}元</div>
+
+      <div class="fee-container">
+        <div class="fee" v-show="panelShow">路费：{{ dollar }}元</div>
+        <div id="panel" v-show="panelShow">
+        </div>
+
       </div>
     </div>
-    <!--    添加途径点-->
-    <!--    <el-dialog-->
-    <!--        title="添加途径点"-->
-    <!--        :visible.sync="wayPointsDialogVisible"-->
-    <!--        width="50%"-->
-    <!--        center>-->
+    <!--        添加途径点-->
+    <el-dialog
+        title="添加途径点"
+        :visible.sync="wayPointsDialogVisible"
+        width="50%"
+        center>
 
-    <!--      <el-form :model="dynamicValidateForm" ref="dynamicValidateForm" label-width="100px" class="demo-dynamic">-->
-    <!--        <el-form-item-->
-    <!--            v-for="(domain, index) in dynamicValidateForm.domains"-->
-    <!--            :label="'途径点' + (index+1)"-->
-    <!--            :key="domain.key"-->
-    <!--            :prop="'domains.' + index + '.value'"-->
-    <!--            :rules="{required: true, message: '途径点信息不能为空', trigger: 'blur'}"-->
-    <!--        >-->
-    <!--          <el-cascader-->
-    <!--              size="large"-->
-    <!--              :options="options"-->
-    <!--              v-model="selectedOptions"-->
-    <!--              placeholder="请选择省市区"-->
-    <!--              @change="handleChange">-->
-    <!--          </el-cascader>-->
-    <!--          <el-input-->
-    <!--              v-model="destination"-->
-    <!--              placeholder="请输入详细地址"-->
-    <!--              clearable>-->
-    <!--          </el-input>-->
-    <!--          &lt;!&ndash;          <el-input v-model="domain.value"></el-input>&ndash;&gt;-->
-    <!--          <el-button @click.prevent="removeDomain(domain)">删除</el-button>-->
-    <!--        </el-form-item>-->
+      <el-form :model="dynamicValidateForm" ref="dynamicValidateForm" label-width="100px" class="WayPoints-dynamic">
+        <el-form-item
+            v-for="(wayPoint, index) in dynamicValidateForm.wayPoints"
+            :label="'途径点' + (index+1)"
+            :key="wayPoint.key"
+        >
+          <el-cascader
+              size="large"
+              :options="options"
+              v-model="wayPoint.city"
+              placeholder="请选择省市区"
+              @change="selectedWayPointCity">
+          </el-cascader>
+          <el-input
+              v-model="wayPoint.detailLocation"
+              placeholder="请输入详细地址"
+              clearable>
+          </el-input>
+          <el-button @click.prevent="removeWayPoint(wayPoint)">删除</el-button>
+        </el-form-item>
 
-    <!--        <el-form-item>-->
+        <el-form-item>
+          <el-button @click="addWayPoint">新增途径点</el-button>
+          <el-button @click="wayPointsDialogVisible = false">取 消</el-button>
+          <el-button type="primary" @click="submitForm('dynamicValidateForm'), wayPointsDialogVisible = false ">确定
+          </el-button>
 
-    <!--          <el-button @click="addDomain">新增途径点</el-button>-->
-    <!--          <el-button @click="wayPointsDialogVisible = false">取 消</el-button>-->
-    <!--          <el-button type="primary" @click="submitForm('dynamicValidateForm'), wayPointsDialogVisible = false ">提交-->
-    <!--          </el-button>-->
-
-    <!--          &lt;!&ndash;          <el-button @click="resetForm('dynamicValidateForm')">重置</el-button>&ndash;&gt;-->
-    <!--        </el-form-item>-->
-    <!--      </el-form>-->
-
-    <!--      &lt;!&ndash;      <span slot="footer" class="dialog-footer">&ndash;&gt;-->
-    <!--      &lt;!&ndash;        <el-button @click="wayPointsDialogVisible = false">取 消</el-button>&ndash;&gt;-->
-    <!--      &lt;!&ndash;        <el-button type="primary" @click="wayPointsDialogVisible = false">确 定</el-button>&ndash;&gt;-->
-    <!--      &lt;!&ndash;      </span>&ndash;&gt;-->
-    <!--    </el-dialog>-->
+        </el-form-item>
+      </el-form>
+    </el-dialog>
   </div>
 
 </template>
@@ -139,9 +133,15 @@ export default {
   name: "MapContainer",
   data() {
     return {
-      map: null,
-      panelShow: false,
-      dollar: '',
+      map: null, //地图对象
+      panelShow: false, //控制查询路线结果面板是否显示
+      dollar: '', // 费用
+      driving: '', //驾车对象
+
+      // 省市区
+      options: regionData,
+      selectedOptions: [],
+
       // 起始地城市
       startCity: [],
       // 起始地具体位置
@@ -152,7 +152,7 @@ export default {
       // 起始地具体位置
       destinationDetail: '',
 
-      // 驾车策略
+      // 驾车策略，select框
       drivePolicyOptions: [{
         value: 'AMap.DrivingPolicy.LEAST_TIME',
         label: '最快捷模式'
@@ -166,32 +166,26 @@ export default {
         value: 'AMap.DrivingPolicy.REAL_TRAFFIC',
         label: '考虑实时路况'
       }],
+      // 获取驾车策略选中值
       drivePolicy: '',
 
-
-      start: '',
-      destination: '',
-      waypoints: [
-        {keyword: '天津站', city: '天津'}
-      ],
-      // 省市区
-      options: regionData,
-      selectedOptions: [],
       // 途径点对话框
       wayPointsDialogVisible: false,
-
+      // 添加途径点表单
       dynamicValidateForm: {
-        domains: [{
-          value: ''
+        wayPoints: [{
+          city: [],
+          detailLocation: '',
         }],
-        email: ''
       }
     }
   },
   mounted() {
     // 初始化申请key对应的秘钥，必须使用，否则无法进行路线规划
     window._AMapSecurityConfig = {
-      securityJsCode: 'b53ddee9fa1fa2ddf02ec7ecf73bbbe5'
+      // 1: b53ddee9fa1fa2ddf02ec7ecf73bbbe5
+      // 2: 150e91861314add8330c4899a3e1823c
+      securityJsCode: '150e91861314add8330c4899a3e1823c'
     }
     //DOM初始化完成进行地图初始化
     this.initMap();
@@ -200,11 +194,17 @@ export default {
   methods: {
     initMap() {
       AMapLoader.load({
-        key: "ebb44e5017076feb584c6d7871d176c0",             // 申请好的Web端开发者Key，首次调用 load 时必填
+        // 1: ebb44e5017076feb584c6d7871d176c0
+        // 2: 9560b10e33522eca4d1a6d0e5e72fa79
+        key: "9560b10e33522eca4d1a6d0e5e72fa79",             // 申请好的Web端开发者Key，首次调用 load 时必填
         version: "2.0",      // 指定要加载的 JSAPI 的版本，缺省时默认为 1.4.15
         plugins: ['AMap.ToolBar', 'AMap.Driving', 'AMap.AutoComplete', 'AMap.TruckDriving', 'AMap.DragRoute'],       // 需要使用的的插件列表，如比例尺'AMap.Scale'等
       }).then((AMap) => {
         this.map = new AMap.Map("MapContainer", {  //设置地图容器id
+          rotateEnable: true,
+          pitchEnable: true,
+          pitch: 50,
+          rotation: -15,
           viewMode: "3D",    //是否为3D地图模式
           zoom: 10,           //初始化地图级别，初始放大的程度
           // center: [115.94422, 28.54538], //初始化地图中心点位置
@@ -222,84 +222,125 @@ export default {
       })
     },
     driver() {
-      console.log(this.drivePolicy)
-      let _this = this; //便于获取vue对象
-      let drivingOptions = {
-        /* 驾车路线规划策略
-         * AMap.DrivingPolicy.LEAST_TIME  //最快捷模式
-         * AMap.DrivingPolicy.LEAST_FEE   //最经济模式
-         * AMap.DrivingPolicy.LEAST_DISTANCE  //最短距离模式
-         * AMap.DrivingPolicy.REAL_TRAFFIC  //考虑实时路况
-         */
-        policy: this.drivePolicy,
-        panel: 'panel',
-        map: this.map,
-      };
-      let driving = new AMap.Driving(drivingOptions)
-      console.log(driving)
-      console.log(CodeToText[this.destinationCity[0]] + CodeToText[this.destinationCity[1]] + CodeToText[this.destinationCity[2]])
-      let points = [
-        {
+      //清除驾车路线
+      if (this.driving) {
+        this.driving.clear()
+        this.panelShow = false
+      }
+
+      // 判断数据是否为空
+      if (this.startCity.length === 0) {
+        this.$message.error('起始地省市区不能为空！');
+      } else if (this.startDetail === '') {
+        this.$message.error('起始地详细地址不能为空！');
+      } else if (this.destinationCity.length === 0) {
+        this.$message.error('目的地省市区不能为空！');
+      } else if (this.destinationDetail === '') {
+        this.$message.error('目的地详细地址不能为空！');
+      }
+
+      if (this.startCity.length !== 0 && this.startDetail !== '' && this.destinationCity.length !== 0 && this.destinationDetail !== '') {
+        let _this = this; //便于获取vue对象
+        // 驾车路线规划策略
+        let drivingOptions = {
+          policy: this.drivePolicy,
+          panel: 'panel',
+          map: this.map,
+        };
+
+        // 初始化驾驶对象
+        this.driving = new AMap.Driving(drivingOptions)
+        // 起始点
+        let startPoint = {
           keyword: this.startDetail,
           city: CodeToText[this.startCity[0]] + CodeToText[this.startCity[1]] + CodeToText[this.startCity[2]]
-        },
-        // {keyword: '天津站', city: '天津'},
-        {
+        }
+        // 终点
+        let destinationPoint = {
           keyword: this.destinationDetail,
           city: CodeToText[this.destinationCity[0]] + CodeToText[this.destinationCity[1]] + CodeToText[this.destinationCity[2]]
-        },
-      ]
-      // let startPoint = {keyword: this.start, city: this.start}
-      // let destinationPoint = {keyword: this.destination, city: this.destination}
-      // points.push(startPoint, destinationPoint)
+        }
+        // 定义路径点
+        let points = [];
+        // 放入起点
+        points.push(startPoint)
+        // 放入途径点
+        if (this.dynamicValidateForm.wayPoints[0].detailLocation !== '') { //为了判断是否有途径点
+          for (let i = 0; i < this.dynamicValidateForm.wayPoints.length; i++) {
+            let point = this.dynamicValidateForm.wayPoints[i];
+            points.push({
+              keyword: point.detailLocation,
+              city: CodeToText[point.city[0]] + CodeToText[point.city[1]] + CodeToText[point.city[2]]
+            })
+          }
+        }
+        // 放入终点
+        points.push(destinationPoint)
 
-      driving.search(points, function (status, result) {
-        _this.panelShow = true
-        console.log(result)
-        // console.log("路费：" + result.routes[0].tolls)
-        // console.log("收费路段长度：" + result.routes[0].tolls_distance)
-        // console.log(result)
-        _this.dollar = result.routes[0].tolls
-        // // let steps=result.steps;
-        // // console.log(steps);
-        // console.log(result.waypoints)
-      })
+        this.driving.search(points, function (status, result) {
+          if (status === 'complete') {
+            _this.panelShow = true
+            _this.dollar = result.routes[0].tolls
+            console.log(document.getElementsByClassName('fee'))
+            _this.$notify({
+              title: '成功',
+              message: '查询成功',
+              type: 'success',
+              position: 'top-left',
+            });
+          } else {
+            _this.$notify.error({
+              title: '错误',
+              message: '查询次数受限或网络不佳，线路获取失败'
+            });
+          }
+          console.log(result)
+
+        })
+      }
     },
 
     selectedStartCity(location) {
       console.log("起始地城市为：" + CodeToText[location[1]])
-    }
-    ,
+    },
     selectedDestinationCity(location) {
       console.log("目的地城市为：" + CodeToText[location[1]])
-    }
-    ,
+    },
+    selectedWayPointCity(location) {
+      console.log("途径点城市为：" + CodeToText[location[1]])
+    },
     // 处理途径点
     submitForm(formName) {
-      this.$refs[formName].validate((valid) => {
-        if (valid) {
-          alert('submit!');
-        } else {
-          console.log('error submit!!');
-          return false;
-        }
+      this.$message({
+        message: '添加途径点成功！',
+        type: 'success'
       });
-    }
-    ,
-    resetForm(formName) {
-      this.$refs[formName].resetFields();
-    }
-    ,
-    removeDomain(item) {
-      var index = this.dynamicValidateForm.domains.indexOf(item)
+      // this.$refs[formName].validate((valid) => {
+      //   if (valid) {
+      //     alert('submit!');
+      //   } else {
+      //     console.log('error submit!!');
+      //     return false;
+      //   }
+      // });
+    },
+
+    // resetForm(formName) {
+    //   this.$refs[formName].resetFields();
+    // },
+
+    // 移除途径点
+    removeWayPoint(item) {
+      var index = this.dynamicValidateForm.wayPoints.indexOf(item)
       if (index !== -1) {
-        this.dynamicValidateForm.domains.splice(index, 1)
+        this.dynamicValidateForm.wayPoints.splice(index, 1)
       }
-    }
-    ,
-    addDomain() {
-      this.dynamicValidateForm.domains.push({
-        value: '',
+    },
+    // 添加途径点
+    addWayPoint() {
+      this.dynamicValidateForm.wayPoints.push({
+        city: '',
+        detailLocation: '',
         key: Date.now()
       });
     }
@@ -308,8 +349,6 @@ export default {
 </script>
 
 <style scoped>
-@import "@/assets/css/map.css";
-
 .container {
   display: flex;
   flex-direction: row;
@@ -336,6 +375,10 @@ export default {
   font-size: 30px;
 }
 
+/deep/ .el-input--suffix .el-input__inner {
+  padding-right: 0px;
+}
+
 .input-line {
   display: flex;
 }
@@ -346,22 +389,22 @@ export default {
 
 .input-title {
   line-height: 40px;
-  /*margin-right: 8px;*/
   width: 80px;
   text-align: right;
 }
 
 .el-cascader.el-cascader--large, .el-input.el-input--suffix {
-  padding: 8px;
+  margin: 8px;
 }
 
-button.el-button.el-button--primary.el-button--medium {
-  float: left;
-  margin: 10px 70px;
+.input-line-button {
+  margin-top: 10px;
+  display: flex;
+  justify-content: space-around;
 }
 
 /deep/ .el-select > .el-input {
-  padding: 8px;
+  margin: 8px;
 }
 
 .map {
@@ -383,16 +426,6 @@ button.el-button.el-button--primary.el-button--medium {
   position: relative;
 }
 
-#panel {
-  position: absolute;
-  width: calc(250px + 1rem);
-  height: calc(600px + 1.5rem);
-  top: 100px;
-  border-radius: 8px;
-  display: flex;
-  overflow: auto;
-  flex-wrap: wrap;
-}
 
 /*前往百度地图消失*/
 /deep/ .amap-call {
@@ -403,7 +436,20 @@ button.el-button.el-button--primary.el-button--medium {
   background: rgba(255, 255, 255);
 }
 
-/deep/ .fee {
+
+/deep/ .fee-container {
+  position: absolute;
+  width: calc(250px + 1rem);
+  height: calc(600px + 1.5rem);
+  top: 100px;
+  border-radius: 8px;
+  display: flex;
+  overflow: auto;
+  flex-wrap: wrap;
+}
+
+.fee {
+  z-index: 99;
   background-color: #ffffff;
   color: #565656;
   width: 100%;
@@ -412,8 +458,19 @@ button.el-button.el-button--primary.el-button--medium {
   text-align: center;
   border-radius: 8px 0 0 0;
   font-weight: bold;
+  position: absolute;
 }
 
+#panel {
+  /*position: absolute;*/
+  /*width: calc(250px + 1rem);*/
+  /*height: calc(600px + 1.5rem);*/
+  /*top: 100px;*/
+  /*border-radius: 8px;*/
+  /*display: flex;*/
+  /*overflow: auto;*/
+  /*flex-wrap: wrap;*/
+}
 
 /* 表单区域 */
 /deep/ .el-form-item__content {
