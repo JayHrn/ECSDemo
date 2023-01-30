@@ -13,6 +13,31 @@ const routes = [
         name: 'home',
         component: HomeView
     },
+    // 新闻
+    {
+        path: '/news1',
+        name: 'news1',
+        // route level code-splitting
+        // this generates a separate chunk (about.[hash].js) for this route
+        // which is lazy-loaded when the route is visited.
+        component: () => import(/* webpackChunkName: "about" */ '../views/News1View.vue')
+    },
+    {
+        path: '/news2',
+        name: 'news2',
+        // route level code-splitting
+        // this generates a separate chunk (about.[hash].js) for this route
+        // which is lazy-loaded when the route is visited.
+        component: () => import(/* webpackChunkName: "about" */ '../views/News2View.vue')
+    },
+    {
+        path: '/news3',
+        name: 'news3',
+        // route level code-splitting
+        // this generates a separate chunk (about.[hash].js) for this route
+        // which is lazy-loaded when the route is visited.
+        component: () => import(/* webpackChunkName: "about" */ '../views/News3View.vue')
+    },
     // 业务中心
     {
         path: '/business/map',
