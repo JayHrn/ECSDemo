@@ -5,16 +5,14 @@
       <div class="nav-content">
         <!-- logo格式 -->
         <div class="nc-logo">
-          <img src="../assets/img/logo-name.png">
+          <img src="../assets/img/logo-removebg-preview.png">
         </div>
         <!-- 菜单 -->
         <div class="nc-menu">
           <ul>
             <li class="active">
               <router-link to="/">首页</router-link>
-<!--              <a href="../官网/index.html">首页</a>-->
             </li>
-
             <!-- 客户服务子菜单 -->
             <li>
               <a href="./pages/order/orderonline.html">在线下单</a>
@@ -28,26 +26,26 @@
             </li>
 
             <!-- 业务介绍子菜单 -->
-            <li><a href="javascript:void(0);">业务介绍</a>
+            <li>
+              <a href="javascript:void(0);">业务中心</a>
               <div class="nc-menulist">
                 <div class="nc-menulist-li">
                   <h4>快递</h4>
-                  <router-link to="/map">特准快递</router-link>
-<!--                  <a href="javascript:void(0);">特准快递</a>-->
-                  <a href="javascript:void(0);">电商尊享</a>
-                  <a href="javascript:void(0);">标准快递</a>
-                  <a href="javascript:void(0);">大件快递</a>
+                  <router-link to="/business/map">路线规划</router-link>
+                  <router-link to="/business/location">位置查询</router-link>
+                  <router-link to="/business/expressContact">快递联系</router-link>
+                  <a href="javascript:void(0);">交通查询</a>
                 </div>
                 <div class="nc-menulist-li">
-                  <h4>零担</h4>
-                  <a href="javascript:void(0);">精准汽运</a>
-                  <a href="javascript:void(0);">精准空运</a>
-                  <a href="javascript:void(0);">精准卡航</a>
+                  <h4>服务</h4>
+                  <router-link to="/business/delivery">优先派送</router-link>
+                  <a href="javascript:void(0);">退换更改</a>
+                  <a href="javascript:void(0);">加急服务</a>
                 </div>
                 <div class="nc-menulist-li">
-                  <h4>仓储</h4>
-                  <a href="javascript:void(0);">仓配一体化</a>
-                  <a href="javascript:void(0);">同城仓配</a>
+                  <h4>信息</h4>
+                  <a href="javascript:void(0);">实时查询</a>
+                  <a href="javascript:void(0);">公司信息</a>
                 </div>
               </div>
             </li>
@@ -56,7 +54,7 @@
             <li><a href="javascript:void(0);">帮助中心</a></li>
 
             <!-- 关于我们子菜单 -->
-            <li><a href="javascript:void(0);">关于七步</a></li>
+            <router-link to="/about">关于十漓</router-link>
           </ul>
         </div>
         <!-- 导航右侧 -->
@@ -81,6 +79,6 @@ export default {
 }
 </script>
 
-<style scoped>
+<style>
 
 </style>

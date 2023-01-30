@@ -20,7 +20,7 @@ export default {
 }
 </script>
 
-<style >
+<style>
 @import "@/assets/css/index.css";
 @import "@/assets/css/base.css";
 @import "@/assets/css/order.css";

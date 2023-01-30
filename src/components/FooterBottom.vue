@@ -14,12 +14,12 @@
             </div>
           </div>
           <div class="footer-menu">
-            <h4>关于七步</h4>
+            <h4>关于十漓</h4>
             <div class="footer-menulist">
               <a href="javascript:void(0);">公司概况</a>
               <a href="javascript:void(0);">新闻消息</a>
               <a href="javascript:void(0);">人才招聘</a>
-              <a href="javascript:void(0);">联系七步</a>
+              <a href="javascript:void(0);">联系十漓</a>
             </div>
           </div>
           <div class="footer-menu">
@@ -56,7 +56,7 @@
       </div>
       <div class="footerbottom-wrapper">
         <div class="footerbottom-content">
-          Copyright &copy; 七步物流股份有限公司.All Rights Reserved.泸ICP备123123123
+          Copyright &copy; 十漓物流股份有限公司.All Rights Reserved
         </div>
       </div>
     </footer>
@@ -69,6 +69,6 @@ export default {
 }
 </script>
 
-<style scoped>
+<style>
 
 </style>
