@@ -4,7 +4,7 @@
 
       <div class="input-area">
         <div class="route-search-title">
-          <span class="route-search-title-name">优先派送</span>
+          <span class="route-search-title-name">退换服务</span>
         </div>
         <!--   始发地     -->
         <div class="input-line">
@@ -77,7 +77,7 @@ import {map} from "core-js/internals/array-iteration";
 // https://lbs.amap.com/api/jsapi-v2/documentation#markermovealong
 // https://blog.csdn.net/qq_38881495/article/details/127808507
 export default {
-  name: "DeliveryMap",
+  name: "ExchangeMap",
   data() {
     return {
       marker: {},
@@ -110,7 +110,7 @@ export default {
     window._AMapSecurityConfig = {
       // 1: b53ddee9fa1fa2ddf02ec7ecf73bbbe5
       // 2: 150e91861314add8330c4899a3e1823c
-      securityJsCode: 'b53ddee9fa1fa2ddf02ec7ecf73bbbe5'
+      securityJsCode: '150e91861314add8330c4899a3e1823c'
     }
     //DOM初始化完成进行地图初始化
     this.initMap();
@@ -122,7 +122,7 @@ export default {
       AMapLoader.load({
         // 1: ebb44e5017076feb584c6d7871d176c0
         // 2: 9560b10e33522eca4d1a6d0e5e72fa79
-        key: "ebb44e5017076feb584c6d7871d176c0",             // 申请好的Web端开发者Key，首次调用 load 时必填
+        key: "9560b10e33522eca4d1a6d0e5e72fa79",             // 申请好的Web端开发者Key，首次调用 load 时必填
         version: "2.0",      // 指定要加载的 JSAPI 的版本，缺省时默认为 1.4.15
         plugins: ['AMap.ToolBar', 'AMap.Driving', 'AMap.AutoComplete', 'AMap.TruckDriving', 'AMap.DragRoute', 'AMap.MoveAnimation'],       // 需要使用的的插件列表，如比例尺'AMap.Scale'等
       }).then((AMap) => {
@@ -140,25 +140,31 @@ export default {
     // 初始化路线汽车标志
     initRoad() {
       // 初始化路径经纬度
-      this.lineArr = [[116.478935, 39.997761], [116.478939, 39.997825], [116.478912, 39.998549], [116.478912, 39.998549], [116.478998, 39.998555], [116.478998, 39.998555], [116.479282, 39.99856], [116.479658, 39.998528], [116.480151, 39.998453], [116.480784, 39.998302], [116.480784, 39.998302], [116.481149, 39.998184], [116.481573, 39.997997], [116.481863, 39.997846], [116.482072, 39.997718], [116.482362, 39.997718], [116.483633, 39.998935], [116.48367, 39.998968], [116.484648, 39.999861]];
+      this.lineArr = [
+        [116.478935, 39.997761],
+        [116.478939, 39.997825],
+        [116.478912, 39.998549],
+        [116.478912, 39.998549],
+        [116.478998, 39.998555],
+        [116.478998, 39.998555],
+        [116.479282, 39.99856],
+        [116.479658, 39.998528],
+        [116.480151, 39.998453],
+        [116.480784, 39.998302],
+        [116.480784, 39.998302],
+        [116.481149, 39.998184],
+        [116.481573, 39.997997],
+        [116.481863, 39.997846],
+        [116.482072, 39.997718],
+        [116.482362, 39.997718],
+        [116.483633, 39.998935],
+        [116.48367, 39.998968],
+        [116.484648, 39.999861]
+      ];
       // 创建标记点，第一辆小汽车
       this.marker = new AMap.Marker({
         map: this.map,
         position: [116.478935, 39.997761],
-        icon: "https://a.amap.com/jsapi_demos/static/demo-center-v2/car.png",
-        offset: new AMap.Pixel(-13, -26),
-      });
-      // 第二辆小汽车
-      let marker2 = new AMap.Marker({
-        map: this.map,
-        position: [116.479034, 39.997662],
-        icon: "https://a.amap.com/jsapi_demos/static/demo-center-v2/car.png",
-        offset: new AMap.Pixel(-13, -26),
-      });
-      // 第三辆小汽车
-      let marker3 = new AMap.Marker({
-        map: this.map,
-        position: [116.478737, 39.9975754],
         icon: "https://a.amap.com/jsapi_demos/static/demo-center-v2/car.png",
         offset: new AMap.Pixel(-13, -26),
       });
@@ -185,10 +191,87 @@ export default {
         // 通过passedPath 给passedPolyline 设置path 也就是让他开始画绿色的线
         passedPolyline.setPath(e.passedPath);
         _this.map.setCenter(e.target.getPosition(), true)
+
+        if (e.target.getPosition().lat === 39.997846 && e.target.getPosition().lng === 116.481863) {
+          e.target.pauseMove();
+          setTimeout(async () => {
+            await e.target.resumeMove()
+            await _this.anotherCar();
+
+          }, 2000)
+        }
       });
       // 让屏幕 聚焦在小汽车
       this.map.setFitView();
     },
+
+    async anotherCar() {
+      // 初始化路径经纬度
+      let lineArr = [
+        [116.481863, 39.997846],
+        [116.481573, 39.997997],
+        [116.481149, 39.998184],
+        [116.480784, 39.998302],
+        [116.480784, 39.998302],
+        [116.480151, 39.998453],
+        [116.479658, 39.998528],
+        [116.479282, 39.99856],
+        [116.478998, 39.998555],
+        [116.478998, 39.998555],
+        [116.478912, 39.998549],
+        [116.478912, 39.998549],
+        [116.478939, 39.997825],
+        [116.478935, 39.997761],
+      ];
+
+      // 创建标记点，第一辆小汽车
+      let marker = new AMap.Marker({
+        map: this.map,
+        position: [116.481863, 39.997846],
+        icon: "https://a.amap.com/jsapi_demos/static/demo-center-v2/car.png",
+        offset: new AMap.Pixel(-13, -26),
+      });
+
+      // 小汽车还未走的路
+      let polyline = new AMap.Polyline({
+        map: this.map,
+        path: lineArr,
+        showDir: true,
+        strokeColor: "#28F",  //线颜色
+        // strokeOpacity: 1,     //线透明度
+        strokeWeight: 6,      //线宽
+      });
+
+      // 小汽车已经走过的路线
+      let passedPolyline = new AMap.Polyline({
+        map: this.map,
+        strokeColor: "#AF5",  //线颜色
+        strokeWeight: 6,      //线宽
+      });
+
+      // 监听小车移动事件
+      let _this = this;
+      marker.on("moving", function (e) {
+        // passedPath为Marker对象在moveAlong或者moveTo过程中已经走过的路径
+        // 通过passedPath 给passedPolyline 设置path 也就是让他开始画绿色的线
+        passedPolyline.setPath(e.passedPath);
+        _this.map.setCenter(e.target.getPosition(), true)
+      });
+
+      // 让屏幕 聚焦在小汽车
+
+      // this.map.setFitView();
+
+      // 第一个参数标识这个标记 移动的路径， 第二个是移动的速度
+      // 第三个参数 是变化曲线函数 可以动态控制 移动速度
+      marker.moveAlong(lineArr, {
+        // 每一段的时长
+        duration: 500,//可根据实际采集时间间隔设置
+        // JSAPI2.0 是否延道路自动设置角度在 moveAlong 里设置
+        autoRotation: true,
+      });
+    },
+
 
     drive() {
       // 第一个参数标识这个标记 移动的路径， 第二个是移动的速度

@@ -53,6 +53,16 @@ const routes = [
         name: 'delivery',
         component: () => import(/* webpackChunkName: "about" */ '../views/DeliveryView.vue')
     },
+    {
+        path: '/business/exchange',
+        name: 'exchange',
+        component: () => import(/* webpackChunkName: "about" */ '../views/ExchangeView.vue')
+    },
+    {
+        path: '/business/information',
+        name: 'information',
+        component: () => import(/* webpackChunkName: "about" */ '../views/InformationView.vue')
+    },
     // 关于十漓
     {
         path: '/about',
