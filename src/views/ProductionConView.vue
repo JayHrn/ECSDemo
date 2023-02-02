@@ -3,7 +3,7 @@
     <div>
         
       <div id="img_show">
-        <img class="info-img" src="../assets/img/index/production.jpg">
+        <img class="info-img" src="../assets/img/index/production.jpg" style="width: 100%">
       </div>
       <div style="background-color: aliceblue;">
         &nbsp;&nbsp;&nbsp;&nbsp;
