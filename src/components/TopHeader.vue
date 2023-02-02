@@ -40,11 +40,12 @@
                   <h4>服务</h4>
                   <router-link to="/business/delivery">优先派送</router-link>
                   <router-link to="/business/exchange">退换更改</router-link>
-                  <a href="javascript:void(0);">加急服务</a>
+                  <router-link to="/business/quick/">加急服务</router-link>
                 </div>
                 <div class="nc-menulist-li">
                   <h4>信息</h4>
-                  <a href="javascript:void(0);">实时查询</a>
+                  
+                  <router-link to="/business/currentQuery">实时查询</router-link>
                   <router-link to="/business/information">公司信息</router-link>
                 </div>
               </div>
@@ -54,7 +55,8 @@
             <li><a href="javascript:void(0);">帮助中心</a></li>
 
             <!-- 关于我们子菜单 -->
-            <router-link to="/about">关于十漓</router-link>
+            <a href="/#关于十漓" id="123">关于十漓</a>
+
           </ul>
         </div>
         <!-- 导航右侧 -->
@@ -74,8 +76,12 @@
 </template>
 
 <script>
+import router from '@/router';
+import { RouterLink } from 'vue-router';
+
 export default {
-  name: "TopHeader"
+    name: "TopHeader",
+    components: { RouterLink, router }
 }
 </script>
 

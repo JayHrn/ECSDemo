@@ -37,6 +37,16 @@ const routes = [
         // this generates a separate chunk (about.[hash].js) for this route
         // which is lazy-loaded when the route is visited.
         component: () => import(/* webpackChunkName: "about" */ '../views/MapView.vue')
+    }
+    ,
+    // 实时查询
+    {
+        path: '/business/currentQuery',
+        name: 'currentQuery',
+        // route level code-splitting
+        // this generates a separate chunk (about.[hash].js) for this route
+        // which is lazy-loaded when the route is visited.
+        component: () => import(/* webpackChunkName: "about" */ '../views/CurrentQueryView.vue')
     },
     {
         path: '/business/location',
@@ -63,11 +73,42 @@ const routes = [
         name: 'information',
         component: () => import(/* webpackChunkName: "about" */ '../views/InformationView.vue')
     },
+    
+    {
+        path: '/business/quick',
+        name: 'quick',
+        component: () => import(/* webpackChunkName: "about" */ '../views/QuickView.vue')
+    },
     // 关于十漓
     {
         path: '/about',
         name: 'about',
         component: () => import(/* webpackChunkName: "about" */ '../views/AboutView.vue')
+    },
+    // 项目简介
+    {
+        path: '/about/productionCon',
+        name: 'productionCon',
+        component: () => import(/* webpackChunkName: "about" */ '../views/ProductionConView.vue')
+    },
+    //团队简介
+    {
+        path: '/about/teamProduce',
+        name: 'teamProduce',
+        component: () => import(/* webpackChunkName: "about" */ '../views/TeamProduceView.vue')
+    }
+    ,
+    //团队简介
+    {
+        path: '/about/features',
+        name: 'features',
+        component: () => import(/* webpackChunkName: "about" */ '../views/FeaturesView.vue')
+    },
+    //团队简介
+    {
+        path: '/about/technology',
+        name: 'technology',
+        component: () => import(/* webpackChunkName: "about" */ '../views/TechnologyView.vue')
     }
 ]
 
